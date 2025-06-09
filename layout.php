@@ -28,7 +28,7 @@ function showHeader() {
         // المستخدم ضيف
         echo '
             <a href="login.php">Login</a>
-            <a href="Sign Up.php">Sign Up</a>
+            <a href="Sign Up1.php">Sign Up</a>
         ';
     }
 
@@ -51,7 +51,7 @@ function showSidebar() {
         // مستخدم مسجل دخول
         switch ($_SESSION['role']) {
             case 'owner':
-                echo '<li><a href="offerFlat.php">Offer Flat</a></li>';
+                echo '<li><a href="Offer_Flat1.php">Offer Flat</a></li>';
                 echo '<li><a href="viewMessages.php">View Messages</a></li>';
                 
                 break;
