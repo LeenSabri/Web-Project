@@ -1,5 +1,7 @@
 <?php
-// session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 include("dbconfig.inc.php"); 
 include_once("flat.php");
 require_once("layout.php");
@@ -39,28 +41,28 @@ require_once("layout.php");
                             <h4>Modern Oasis</h4>
                             <p>Birzeit City Center</p>
                             <p class="price">$850/month</p>
-                            <a href="#" class="btn">View Details</a>
+                            <a href="details.php?flat_id=45" class="btn">View Details</a>
                         </div>
                         <div class="flat-card">
                             <img src="image/flat2.jpg" alt="Flat 2">
                             <h4>Cozy Studio</h4>
                             <p>Near Birzeit University</p>
                             <p class="price">$600/month</p>
-                            <a href="#" class="btn">View Details</a>
+                            <a href="details.php?flat_id=42" class="btn">View Details</a>
                         </div>
                         <div class="flat-card">
                             <img src="image/flat3.jpg" alt="Flat 3">
                             <h4>Family Apartment</h4>
                             <p>Al-Masyoun Quarter</p>
                             <p class="price">$1200/month</p>
-                            <a href="#" class="btn">View Details</a>
+                            <a href="details.php?flat_id=43" class="btn">View Details</a>
                         </div>
-                         <div class="flat-card">
+                        <div class="flat-card">
                             <img src="image/flat4.jpg" alt="Flat 4">
                             <h4>Family Apartment</h4>
                             <p>Al-Masyoun Quarter</p>
                             <p class="price">$1500/month</p>
-                            <a href="#" class="btn">View Details</a>
+                            <a href="details.php?flat_id=44" class="btn">View Details</a>
                         </div>
                     </div>
                 </section>

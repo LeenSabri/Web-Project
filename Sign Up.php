@@ -2,6 +2,9 @@
 require_once("dbconfig.inc.php");
 include_once("flat.php");
 require_once("layout.php");
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 $pdo = db_connect();
 
 $successMsg = "";
@@ -100,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // التحقق من اسم المستخدم المكرر (case-sensitive)
+        // التحقق من اسم المستخدم المكرر
         if (empty($errors['username'])) {
             $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = :username");
             $stmt->execute([':username' => $username]);
@@ -160,7 +163,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ]);
                 }
 
+                // تسجيل الدخول مباشرة بعد التسجيل
+                $_SESSION['user_id'] = $pdo->lastInsertId();
+                $_SESSION['role'] = $role;
+                $_SESSION['fullname'] = $fullname;
+
                 $successMsg = "Registration successful! Welcome, " . htmlspecialchars($fullname) . ".";
+                header("Location: main.php"); // إعادة التوجيه للصفحة الرئيسية
+                exit();
+
             } catch (PDOException $e) {
                 $errorMsg = "Database error: " . $e->getMessage();
             }
@@ -173,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>BZU Flat Rent</title>
+    <title>BZU Flat Rent - Sign Up</title>
     <link rel="stylesheet" href="test.css">
     <style>
         .error { color: red; font-size: 14px; }
@@ -181,7 +192,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-<main>
+<?php showHeader(); ?>
+
+<div class="container">
+    <?php showSidebar(); ?>
+
+    <main class="main-content">
     <section>
         <fieldset>
             <legend>Sign Up</legend>
@@ -197,16 +213,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!isset($role)) {
                 echo '<form action="" method="POST" class="formRole">';
                 echo '<label>Select your role:</label><br>';
-
                 echo '<div class="radio-item"><input type="radio" id="manager" name="role" value="manager" required>';
                 echo '<label for="manager">Manager</label></div>';
-
                 echo '<div class="radio-item"><input type="radio" id="owner" name="role" value="owner" required>';
                 echo '<label for="owner">Owner</label></div>';
-
                 echo '<div class="radio-item"><input type="radio" id="customer" name="role" value="customer" required>';
                 echo '<label for="customer">Customer</label></div>';
-
                 echo '<br><button type="submit">Continue</button>';
                 echo '</form>';
             } else {
@@ -251,6 +263,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </fieldset>
     </section>
 </main>
-<!-- <?php showFooter(); ?> -->
+ </div>
+<?php showFooter(); ?>
+       
 </body>
 </html>

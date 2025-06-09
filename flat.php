@@ -13,17 +13,24 @@ class Flat {
     private $size;
     private $furnished;
     private $heating;
-
     private $parking;
     private $is_approved;
     private $is_rented;
     private $image;
 
+    // الأعمدة الجديدة
+    private $rental_conditions;
+    private $access_control;
+    private $backyard;
+    private $playground;
+    private $storage;
+
     // Constructor
     public function __construct(
         $flat_id, $flat_ref, $owner_id, $location, $address, $price,
         $start_date, $end_date, $bedrooms, $bathrooms, $size, $furnished,
-        $heating, $parking, $is_approved, $is_rented, $image
+        $heating, $parking, $is_approved, $is_rented, $image,
+        $rental_conditions, $access_control, $backyard, $playground, $storage
     ) {
         $this->flat_id = $flat_id;
         $this->flat_ref = $flat_ref;
@@ -38,15 +45,20 @@ class Flat {
         $this->size = $size;
         $this->furnished = $furnished;
         $this->heating = $heating;
-       
         $this->parking = $parking;
-       
         $this->is_approved = $is_approved;
         $this->is_rented = $is_rented;
         $this->image = $image;
+
+        // الأعمدة الجديدة
+        $this->rental_conditions = $rental_conditions;
+        $this->access_control = $access_control;
+        $this->backyard = $backyard;
+        $this->playground = $playground;
+        $this->storage = $storage;
     }
 
-    // Display in Table
+    // Display in Table (يمكنك تحديث الجدول ليشمل الأعمدة الجديدة عند الحاجة)
     public function displayInTable() {
         $imagePath = "image/{$this->image}";
         return "<tr>
@@ -65,16 +77,16 @@ class Flat {
             <td>{$this->end_date}</td>
             <td>{$this->bedrooms}</td>
             <td>{$this->bathrooms}</td>
-             <td>{$this->size}</td>
+            <td>{$this->size}</td>
             <td>{$this->furnished}</td>
             <td>{$this->heating}</td>
             <td>{$this->parking}</td>
-            <td>{$this->is_approved	}</td>
-           
+            <td>{$this->is_approved}</td>
         </tr>";
     }
 
     // Getters and Setters
+
     public function getFlatId() { return $this->flat_id; }
     public function setFlatId($flat_id) { $this->flat_id = $flat_id; }
 
@@ -125,5 +137,22 @@ class Flat {
 
     public function getImage() { return $this->image; }
     public function setImage($image) { $this->image = $image; }
+
+    // New getters and setters
+
+    public function getRentalConditions() { return $this->rental_conditions; }
+    public function setRentalConditions($rental_conditions) { $this->rental_conditions = $rental_conditions; }
+
+    public function getAccessControl() { return $this->access_control; }
+    public function setAccessControl($access_control) { $this->access_control = $access_control; }
+
+    public function getBackyard() { return $this->backyard; }
+    public function setBackyard($backyard) { $this->backyard = $backyard; }
+
+    public function getPlayground() { return $this->playground; }
+    public function setPlayground($playground) { $this->playground = $playground; }
+
+    public function getStorage() { return $this->storage; }
+    public function setStorage($storage) { $this->storage = $storage; }
 }
 ?>

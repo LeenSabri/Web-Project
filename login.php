@@ -2,7 +2,9 @@
 require_once("dbconfig.inc.php");
 include_once("flat.php");
 require_once("layout.php");
-// session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 $pdo = db_connect();
 
 $usernameError = "";
@@ -13,11 +15,9 @@ $password = "";
 
 // معالجة الفورم عند الإرسال
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // قراءة القيم
     $username = trim($_POST["username"]);
     $password = trim($_POST["password"]);
 
-    // التحقق من الحقول الفارغة
     if (empty($username)) {
         $usernameError = "Username is required.";
     }
@@ -26,9 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $passwordError = "Password is required.";
     }
 
-    // إذا كان كلاهما موجودين
     if (empty($usernameError) && empty($passwordError)) {
-        // تحقق إذا كان اسم المستخدم موجوداً (حساس للحروف)
         $stmt = $pdo->prepare("SELECT * FROM users WHERE BINARY username = :username");
         $stmt->execute([':username' => $username]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -36,12 +34,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if (!$user) {
             $usernameError = "Username not found.";
         } else {
-            // تحقق من كلمة المرور
             if (password_verify($password, $user['password'])) {
-                // تسجيل الدخول (هنا يمكنك استخدام session إذا أردت)
-                // session_start();
-                // $_SESSION['user_id'] = $user['user_id'];
-                header("Location: main.php"); // توجيه المستخدم للصفحة الرئيسية
+                $_SESSION['user_id'] = $user['user_id'];
+                $_SESSION['role'] = $user['role'];
+                $_SESSION['fullname'] = $user['fullname'];
+
+                header("Location: main.php");
                 exit;
             } else {
                 $passwordError = "Incorrect password.";
@@ -55,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>BZU Flat Rent</title>
+    <title>BZU Flat Rent - Login</title>
     <link rel="stylesheet" href="test.css">
     <style>
         .error {
@@ -66,7 +64,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </style>
 </head>
 <body>
-<main>
+
+<?php showHeader(); ?>
+
+<div class="container">
+    <?php showSidebar(); ?>
+
+    <main class="main-content">
     <section>
         <fieldset>
             <legend>Login</legend>
@@ -84,5 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </fieldset>
     </section>
 </main>
+</div>
+<?php showFooter(); ?>
 </body>
 </html>
