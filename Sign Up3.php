@@ -6,6 +6,12 @@ require_once("layout.php");
 $pdo = db_connect();
 $success = "";
 
+if (!isset($_SESSION['role'])) {
+    header("Location: Sign Up1.php");
+    exit();
+}
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $role = $_SESSION['role'];
     $national_id = $_SESSION['national_id'];

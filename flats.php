@@ -24,7 +24,7 @@ $pdo = db_connect();
    
     <?php
     
-        $query = "SELECT * FROM flat WHERE is_rented=0";
+        $query = "SELECT * FROM flat WHERE is_rented=0 AND is_approved = 1";
         $stmt = $pdo->prepare($query);
         $stmt->execute();
         $flats = $stmt->fetchAll(PDO::FETCH_ASSOC);

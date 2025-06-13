@@ -34,7 +34,7 @@ FROM rentals r
 JOIN flat f ON r.flat_id = f.flat_id
 JOIN owners o ON f.owner_id = o.owner_id
 JOIN users u ON o.user_id = u.user_id
-WHERE r.customer_id = :customer_id
+WHERE r.customer_id = :customer_id 
 
 ";
 $query .= " ORDER BY $sortBy $sortOrder";

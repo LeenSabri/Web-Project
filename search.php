@@ -48,7 +48,7 @@ $pdo = db_connect();
     <?php
     $sortBy = isset($_GET["sortBy"]) ? $_GET["sortBy"]: "price";
     $sortOrder = isset($_GET["sortOrder"]) ? $_GET["sortOrder"]: "asc";
-    $query = "SELECT * FROM flat WHERE 1=1 AND is_rented=0";
+    $query = "SELECT * FROM flat WHERE 1=1 AND is_rented=0 AND is_approved = 1";
     
 
     if (!empty($_GET['price'])) {

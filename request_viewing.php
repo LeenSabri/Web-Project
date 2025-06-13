@@ -1,79 +1,108 @@
 <?php
+session_start();
 require_once("dbconfig.inc.php");
 require_once("layout.php");
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
 $pdo = db_connect();
 
-// التحقق من أن المستخدم مسجل دخول كـ customer فقط
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
-    header("Location: main.php?page=login");
+// التحقق من تسجيل الدخول
+if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'customer') {
+    $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
+    header("Location: login.php");
     exit();
 }
 
-$flat_id = isset($_GET['flat_id']) ? intval($_GET['flat_id']) : 0;
-$user_id = $_SESSION['user_id']; // المستخدم الحالي من الجلسة
-
-$success = "";
-$error = "";
-
-// معالجة الطلب
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $preferred_date = trim($_POST['preferred_date']);
-    $preferred_time = trim($_POST['preferred_time']);
-    $notes = trim($_POST['notes']);
-
-    if (empty($preferred_date) || empty($preferred_time)) {
-        $error = "Please fill in all required fields.";
-    } else {
-        try {
-            $stmt = $pdo->prepare("INSERT INTO viewing_requests (flat_id, user_id, preferred_date, preferred_time, notes) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$flat_id, $user_id, $preferred_date, $preferred_time, $notes]);
-            $success = "Your request has been submitted successfully!";
-        } catch (PDOException $e) {
-            $error = "Error: " . $e->getMessage();
-        }
-    }
+// التحقق من وصول flat_id
+if (!isset($_GET['flat_id'])) {
+    echo "No flat selected.";
+    exit();
 }
+
+$flat_id = intval($_GET['flat_id']);
+
+// جلب جدول المواعيد
+$stmt = $pdo->prepare("
+    SELECT id, day_of_week, time_slot, contact_number
+    FROM flat_viewing_schedule
+    WHERE flat_id = :flat_id
+");
+$stmt->execute(['flat_id' => $flat_id]);
+$schedule = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Request Viewing</title>
+    <meta charset="UTF-8">
+    <title>Request Flat Preview Appointment</title>
     <link rel="stylesheet" href="test.css">
+    <style>
+        .booked { background-color: #ccc; color: #999; }
+    </style>
 </head>
 <body>
 <?php showHeader(); ?>
 <div class="container">
     <?php showSidebar(); ?>
     <main class="main-content">
-        <h2>Request a Flat Viewing</h2>
+        <h2>Available Preview Appointments</h2>
+        <table border="1" cellpadding="8" cellspacing="0">
+            <tr>
+                <th>Day</th>
+                <th>Time</th>
+                <th>Contact</th>
+                <th>Action</th>
+            </tr>
+            <?php
+            foreach ($schedule as $slot) {
+                $day = $slot['day_of_week'];
+                $time = $slot['time_slot'];
+                $contact = $slot['contact_number'];
 
-        <?php if (!empty($error)): ?>
-            <div class="error"><?php echo htmlspecialchars($error); ?></div>
-        <?php endif; ?>
+                // تحويل اليوم والوقت لتاريخ فعلي (مؤقت)
+                $today = date('Y-m-d');
+                $preferred_date = date('Y-m-d', strtotime("next $day"));
+                $preferred_time = $time;
 
-        <?php if (!empty($success)): ?>
-            <div class="success"><?php echo htmlspecialchars($success); ?></div>
-        <?php endif; ?>
+                // التحقق من انتهاء الموعد
+                $slot_datetime = strtotime("$preferred_date $preferred_time");
+                $is_expired = ($slot_datetime < strtotime(date('Y-m-d H:i:s')));
 
-        <form method="POST" class="requestForm">
-            <input type="hidden" name="flat_id" value="<?php echo htmlspecialchars($flat_id); ?>">
+                // التحقق من حجز الموعد
+                $stmt2 = $pdo->prepare("
+                    SELECT COUNT(*) 
+                    FROM viewing_requests 
+                    WHERE flat_id = :flat_id 
+                      AND preferred_date = :preferred_date 
+                      AND preferred_time = :preferred_time
+                ");
+                $stmt2->execute([
+                    'flat_id' => $flat_id,
+                    'preferred_date' => $preferred_date,
+                    'preferred_time' => $preferred_time
+                ]);
+                $is_booked = ($stmt2->fetchColumn() > 0);
 
-            <label for="preferred_date">Preferred Date:</label>
-            <input type="date" name="preferred_date" id="preferred_date" required><br>
+                echo "<tr";
+                if ($is_booked) echo " class='booked'";
+                echo ">";
 
-            <label for="preferred_time">Preferred Time:</label>
-            <input type="time" name="preferred_time" id="preferred_time" required><br>
-
-            <label for="notes">Notes (optional):</label>
-            <textarea name="notes" id="notes" rows="3"></textarea><br>
-
-            <button type="submit">Submit Request</button>
-        </form>
+                echo "<td>" . htmlspecialchars($day) . "</td>";
+                echo "<td>" . htmlspecialchars($time) . "</td>";
+                echo "<td>" . htmlspecialchars($contact) . "</td>";
+                echo "<td>";
+                if ($is_expired) {
+                    echo "<span style='color: red;'>Expired</span>";
+                } elseif ($is_booked) {
+                    echo "<span>Booked</span>";
+                } else {
+                    echo "<a href='request_viewing_confirm.php?slot_id={$slot['id']}&flat_id={$flat_id}'>Book</a>";
+                }
+                echo "</td>";
+                echo "</tr>";
+            }
+            ?>
+        </table>
     </main>
 </div>
 <?php showFooter(); ?>

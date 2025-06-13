@@ -45,26 +45,26 @@ function showSidebar() {
     echo '<li><a href="main.php">Home</a></li>';
     echo '<li><a href="flats.php">Flats</a></li>';
     echo '<li><a href="search.php">Search</a></li>';
-    echo '<li><a href="about.php">About Us</a></li>';
+    echo '<li><a href="about_us.php">About Us</a></li>';
 
     if (isset($_SESSION['role'])) {
         // مستخدم مسجل دخول
         switch ($_SESSION['role']) {
             case 'owner':
                 echo '<li><a href="Offer_Flat1.php">Offer Flat</a></li>';
-                echo '<li><a href="viewMessages.php">View Messages</a></li>';
+                echo '<li><a href="view_messages.php">View Messages</a></li>';
                 
                 break;
             case 'manager':
-                echo '<li><a href="approveFlats.php">Approve Flats</a></li>';
-                echo '<li><a href="viewMessages.php">View Messages</a></li>';
+                echo '<li><a href="manager_approve_flats.php">Approve Flats</a></li>';
+                echo '<li><a href="view_messages.php">View Messages</a></li>';
                 echo '<li><a href=" Flats_Inquire.php">Flats Inquire</a></li>';
 
                 break;
             case 'customer':
                 echo '<li><a href="viewRentedFlats.php">View Rented Flats</a></li>';
                 echo '<li><a href="viewBasket.php">Basket</a></li>';
-                echo '<li><a href="viewMessages.php">View Messages</a></li>';
+                echo '<li><a href="view_messages.php">View Messages</a></li>';
                 break;
         }
         echo '<li><a href="logout.php">Logout</a></li>';
