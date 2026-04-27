@@ -10,7 +10,6 @@ $pdo = db_connect();
 $successMsg = "";
 $errorMsg = "";
 
-// تعريف مصفوفة أخطاء
 $errors = [
     'national_id' => '',
     'fullname' => '',
